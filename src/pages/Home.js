@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { baseUrl } from "../config";
 import { uuidv4 } from "../utils";
 
+import socket from "../socket";
+
 const Types = {
   Type1: "activity_type_1",
   Type2: "activity_type_2",
@@ -14,6 +16,8 @@ export default function App() {
   let [name, setName] = useState("");
   let [type, setType] = useState(Types.Type1);
 
+  const [content, setContent] = useState("");
+
   useEffect(() => {
     const loadActivities = async () => {
       let results = await fetch(`${baseUrl}/activities`).then((resp) =>
@@ -23,6 +27,14 @@ export default function App() {
     };
 
     loadActivities();
+
+    socket.setHandler(setContent);
+    socket.setActivitiesHandler(setActivities);
+
+    return () => {
+      socket.setHandler(null);
+      socket.setActivitiesHandler(null);
+    };
   }, []);
 
   const addActivity = async () => {
@@ -30,18 +42,34 @@ export default function App() {
     let userId = uuidv4();
     let eventTime = new Date();
     let activity = { uid, name, type, userId, eventTime };
-    let results = await fetch(`${baseUrl}/activities`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(activity),
-    }).then((resp) => resp.json());
-    setActivities([...activities, { ...activity, _id: results.insertedId }]);
-    closeModal();
+    try {
+      const resp = await fetch(`${baseUrl}/activities`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(activity),
+      });
+
+      const results = await resp.json();
+      // setActivities([...activities, { ...activity, _id: results.insertedId }]);
+      socket.addRow({
+        ...activity,
+        _id: results.insertedId,
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      closeModal();
+    }
   };
 
   const deleteActivity = async (id) => {
-    await fetch(`${baseUrl}/activities/${id}`, { method: "DELETE" });
-    setActivities(activities.filter((activity) => activity._id !== id));
+    try {
+      await fetch(`${baseUrl}/activities/${id}`, { method: "DELETE" });
+      // setActivities(activities.filter((activity) => activity._id !== id));
+      socket.deleteRow({ id });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const closeModal = () => {
@@ -50,9 +78,15 @@ export default function App() {
     setType(Types.Type1);
   };
 
+  const onContentChange = (e) => {
+    socket.sendMessage(e.target.value);
+    setContent(e.target.value);
+  };
+
   return (
     <React.Fragment>
       <div>
+        <input type="text" value={content} onChange={onContentChange} />
         <table>
           <thead>
             <tr>
