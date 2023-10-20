@@ -46,7 +46,7 @@ export default function App() {
       });
 
       const results = await resp.json();
-      // setActivities([...activities, { ...activity, _id: results.insertedId }]);
+
       socket.addRow({
         ...activity,
         _id: results.insertedId,
@@ -61,7 +61,6 @@ export default function App() {
   const deleteActivity = async (id) => {
     try {
       await fetch(`${baseUrl}/activities/${id}`, { method: "DELETE" });
-      // setActivities(activities.filter((activity) => activity._id !== id));
       socket.deleteRow({ id });
     } catch (e) {
       console.error(e);

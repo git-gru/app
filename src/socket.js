@@ -23,7 +23,7 @@ class Socket {
   }
 
   addRowHandler(data) {
-    console.log(data);
+    // console.log(data);
     if (typeof this.setActivities === "function")
       this.setActivities((prev) => [...prev, data]);
   }
@@ -33,7 +33,7 @@ class Socket {
   }
 
   deleteRowHandler(data) {
-    console.log(data);
+    // console.log(data);
     if (typeof this.setActivities === "function")
       this.setActivities((prev) => prev.filter(({ _id }) => _id !== data.id));
   }
