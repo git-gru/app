@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { baseUrl } from "../config";
+import { uuidv4 } from "../utils";
 
 const Types = {
   Type1: "activity_type_1",
@@ -25,8 +26,8 @@ export default function App() {
   }, []);
 
   const addActivity = async () => {
-    let uid = Math.random().toString(36).substring(2);
-    let userId = "78bf0298-a898-4ed0-a6dd-e6e33001daf9";
+    let uid = uuidv4();
+    let userId = uuidv4();
     let eventTime = new Date();
     let activity = { uid, name, type, userId, eventTime };
     let results = await fetch(`${baseUrl}/activities`, {
