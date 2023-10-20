@@ -6,32 +6,16 @@ class Socket {
   constructor() {
     this.socket = socketIO.connect("http://localhost:5050");
 
-    this.handler = null;
     this.setActivities = null;
 
-    this.setContent = this.setContent.bind(this);
     this.addRowHandler = this.addRowHandler.bind(this);
     this.deleteRowHandler = this.deleteRowHandler.bind(this);
 
     this.socket.on("greet_from_user", (msg) => {
       console.log(msg);
     });
-    this.socket.on("set_content", this.setContent);
     this.socket.on("add_row", this.addRowHandler);
     this.socket.on("delete_row", this.deleteRowHandler);
-  }
-
-  sendMessage(msg) {
-    this.socket.emit("content_changed_from_client", msg);
-  }
-
-  setContent(data) {
-    console.log(data);
-    if (typeof this.handler === "function") this.handler(data.msg);
-  }
-
-  setHandler(handler) {
-    this.handler = handler;
   }
 
   addRow(data) {

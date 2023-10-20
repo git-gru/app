@@ -16,8 +16,6 @@ export default function App() {
   let [name, setName] = useState("");
   let [type, setType] = useState(Types.Type1);
 
-  const [content, setContent] = useState("");
-
   useEffect(() => {
     const loadActivities = async () => {
       let results = await fetch(`${baseUrl}/activities`).then((resp) =>
@@ -28,11 +26,9 @@ export default function App() {
 
     loadActivities();
 
-    socket.setHandler(setContent);
     socket.setActivitiesHandler(setActivities);
 
     return () => {
-      socket.setHandler(null);
       socket.setActivitiesHandler(null);
     };
   }, []);
@@ -78,15 +74,9 @@ export default function App() {
     setType(Types.Type1);
   };
 
-  const onContentChange = (e) => {
-    socket.sendMessage(e.target.value);
-    setContent(e.target.value);
-  };
-
   return (
     <React.Fragment>
       <div>
-        <input type="text" value={content} onChange={onContentChange} />
         <table>
           <thead>
             <tr>
